@@ -45,6 +45,38 @@ procedure main()
 
   APPEND FROM rnal.csv DELIMITED
 
-  browse()
+  ? "pretpostavljamo da je decimalni separator ,"
+
+   GO TOP
+   ? "Preskacemo header"
+   SKIP 1
+  
+  do while !eof()
+     ? id, field->id, string_to_number(field->debljina, "BA"), string_to_number(field->sirina, "BA"),  string_to_number(field->kolicina, "BA")     
+     SKIP
+  enddo
 
 return
+
+
+function string_to_number(cNumber, countryCode)
+local sepDec := ","
+local sep1000 := "."
+local cTmp
+
+if countryCode == NIL
+   countryCode = "BA"
+endif
+
+if countryCode == "EN"
+   // u tom slucaju je sepDec := ".", sep1000 := ","
+   // nemamo sta konvertovati
+   return VAL(cNumber)
+endif
+
+cTmp := strtran(cNumber, sep1000, "")
+cTmp := strtran(cNumber, sepDec, ".")
+
+return VAL(cTmp)
+
+
