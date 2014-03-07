@@ -4,11 +4,12 @@
 #include "dbinfo.ch"
 #include "error.ch"
 
-REQUEST SDDPG, SQLMIX
+REQUEST DBFCDX, SDDPG, SQLMIX
 
-ANNOUNCE RDDSYS
+//ANNOUNCE RDDSYS
 
 FIELD RESIDENTS
+
 
 PROCEDURE Main()
 
@@ -31,7 +32,7 @@ PROCEDURE Main()
 
    ? "Let's browse table (press any key)"
    Inkey( 0 )
-   dbUseArea( .T., , "SELECT * FROM country", "country" )
+   dbUseArea( .T., "SQLMIX" , "SELECT * FROM country", "country" )
    Browse()
 
    ? "Let's browse table ordered by resident count (press any key)"
@@ -40,6 +41,10 @@ PROCEDURE Main()
    Browse()
 
    dbCloseAll()
+   rddSetDefault("DBFCDX")
+ 
+   use partn
+   browse()
 
    RETURN
 
