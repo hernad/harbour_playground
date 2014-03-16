@@ -115,15 +115,15 @@ METHOD New( cPort, cMode, bOnInit, bOnStarted ) CLASS WebSocketServer
        cMode := "start"
    endif
 
-   oHost      = Self
-   ::hMainWnd = hb_Hash()
-   ::hMutexWork = hb_MutexCreate()
+   oHost      := Self
+   ::hMainWnd := hb_Hash()
+   ::hMutexWork := hb_MutexCreate()
    
-   ::lStarted    = .F.
-   ::lBackground = .T.
+   ::lStarted    := .F.
+   ::lBackground := .T.
    
-   ::bOnInit = bOnInit
-   ::bOnStarted = bOnStarted
+   ::bOnInit := bOnInit
+   ::bOnStarted := bOnStarted
   
    ? PORT_FILE, VALTYPE(cPort), cPort
  
@@ -132,7 +132,7 @@ METHOD New( cPort, cMode, bOnInit, bOnStarted ) CLASS WebSocketServer
       MemoWrit( PORT_FILE, AllTrim( cPort ) )
    ENDIF
 
-   ::nPort = Val( cPort )
+   ::nPort := Val( cPort )
    
 #ifdef __PLATFORM__LINUX
    //DEFAULT cMode TO "start"
@@ -335,15 +335,18 @@ METHOD HandleEvent( hEvents, oClient ) CLASS WebSocketServer
       
 
       SWITCH nEvent
-         CASE H5_STARTED /*STARTED*/
+         CASE H5_STARTED 
+            /*STARTED*/
             IF hb_isBlock( ::bOnStarted )
                Eval( ::bOnStarted, oClient )
             ENDIF
             EXIT
-         CASE 0x2 //CLICK ON MENU ITEM      
+         CASE 0x2 
+            //CLICK ON MENU ITEM      
             H5_GetMainMenu()[ lParam ]:HandleEvent( nEvent, wParam, lParam )
             EXIT
-         CASE 0x3 //MOUSE MOVE
+         CASE 0x3 
+            //MOUSE MOVE
             ::hObjects[ lParam ]:OnMouseMove( H5_HighWord( wParam ), H5_LowWord( wParam ) )         
             EXIT         
       ENDSWITCH
@@ -356,7 +359,7 @@ RETURN NIL
 
 //-----------------------------------------//
 
-METHOD HandShake(  oClient ) CLASS WebSocketServer
+METHOD HandShake( oClient ) CLASS WebSocketServer
    local nLen, cBuffer, cContext, cKey, cSend
    
    cBuffer := oClient:cBuffer

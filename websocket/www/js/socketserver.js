@@ -1,5 +1,6 @@
 var oServer;
 var lWorking = false;
+var term;
 
 function H5_SocketServer(serverUrl)
 {
@@ -40,6 +41,36 @@ function H5_SocketServer(serverUrl)
         this.webSocket.onclose = this.bind(this, this.onClose);
         this.webSocket.onmessage = this.bind(this, this.onMessage);
         this.webSocket.onerror = this.bind(this, this.onError);
+
+
+        term = new Terminal({
+           cols: 80,
+           rows: 24,
+           useStyle: true,
+           screenKeys: true
+        });
+
+        term.on('data', function(data) {
+            this.webSocket.emit('data', data);
+        });
+
+        term.on('title', function(title) {
+             document.title = title;
+        });
+
+        term.open(document.body);
+
+        term.write('\x1b[31mWelcome to term.js!\x1b[m\r\n');
+
+        this.webSocket.socket.on('data', function(data) {
+             term.write(data);
+        });
+
+        this.webSocket.on('disconnect', function() {
+              term.destroy();
+        });
+
+
     };
     
     /* Event that is called when your browser connected to the server... */
@@ -150,7 +181,8 @@ function BuildControls( json )
          createMenu( json );
          break;
       case "MSGALERT":
-         alert( json.MSG );
+         //alert( json.MSG );
+         term.write('\x1b[31m' + json.MSG + '\x1b[m\r\n');
          break;
       case "BUILDCONTROLS":
          $.each( json.PARAMETERS, function(i, n){
