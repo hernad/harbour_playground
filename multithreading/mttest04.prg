@@ -28,7 +28,8 @@ static s_aCounters
 static s_hMutex
 
 proc main()
-   local aThreads, i, lEnd, nSum
+   local aThreads, i, lEnd, nSum, nCnt
+
    ? Version()
    ? "Main start"
    s_aCounters := array( N_THREADS )
@@ -48,7 +49,8 @@ proc main()
    aEval( aThreads, { |x| hb_threadJoin( x ) } )
    ? "Threads joined"
    nSum := 0
-   aEval( s_aCounters, { |x| nSum += x } )
+   nCnt := 0
+   aEval( s_aCounters, { |x| showThreadCounter( ++nCnt, x ) , nSum += x } )
    ? "Sum of thread local counters:", nSum
    ? "Protected item result.......:", s_nVar2, ;
      iif( nSum == s_nVar2, "OK", "ERROR" )
@@ -56,6 +58,11 @@ proc main()
    ? " * - can be different then local sum on real multi-CPU systems"
    ? "End of main"
 return
+
+proc showThreadCounter( nCnt, x )
+
+?  nCnt, ":", x
+
 
 proc thFunc( nThread, lEnd )
    while !lEnd
