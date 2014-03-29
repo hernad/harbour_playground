@@ -63,7 +63,8 @@ CLASS WebSocketServer FROM HBSocket2
    DATA lBackground
    DATA lStarted
    
-   METHOD New( nPort, cMode )
+   //METHOD New( nPort, cMode )
+   METDHOD New( cPort, cMode, bOnInit, bOnStarted )
    
    METHOD HandleEvent( hEvents, oClient )
    METHOD HandShake( oClient )
@@ -101,8 +102,6 @@ METHOD New( cPort, cMode, bOnInit, bOnStarted ) CLASS WebSocketServer
    LOCAL nProcess
    LOCAL nFork
 
-   ? "WebSocketServer New"
-  
    if VALTYPE( cPort ) == "N"
       cPort := ALLTRIM( STR( cPort ) )
    endif
@@ -138,6 +137,7 @@ METHOD New( cPort, cMode, bOnInit, bOnStarted ) CLASS WebSocketServer
    //DEFAULT cMode TO "start"
    cMode = Upper( cMode )
    cls
+
    if cMode == "START"
      if File( PID_FILE )
         QOut(  "daemon is already running" + CRLF )
@@ -145,6 +145,7 @@ METHOD New( cPort, cMode, bOnInit, bOnStarted ) CLASS WebSocketServer
      else
         MemoWrit( PID_FILE, AllTrim( Str( getpid() ) ) )
      endif
+
    elseif cMode == "STOP"
      if File( PID_FILE )
         nProcess = Val( MemoRead( PID_FILE ) ) + 1
@@ -152,8 +153,10 @@ METHOD New( cPort, cMode, bOnInit, bOnStarted ) CLASS WebSocketServer
         KillTerm( nProcess )
         return nil
      endif
+
    elseif Upper( cMode ) == "NONE"
       ::lBackground = .F.
+
    else
      QOut(  CRLF + "daemon. Syntax:" + CRLF )
      QOut(  "   ./daemon start" + CRLF )
@@ -258,12 +261,14 @@ METHOD KillBack() CLASS WebSocketServer
    local nProcess
    
    IF ::lBackground
+
 #ifdef __PLATFORM__LINUX
    QOut(  CRLF + "daemon ends" + CRLF )
    nProcess = Val( MemoRead( PID_FILE ) ) + 1
    FErase( PID_FILE )
    KillKill( nProcess )
 #endif   
+
 #ifdef __PLATFORM__WINDOWS
     win_serviceSetExitCode( 0 )
     win_serviceStop()
@@ -299,9 +304,14 @@ METHOD Activate() CLASS WebSocketServer
       ? "Press <ESC> to exit!!!"
    endif
    ::lDebug    = .t.
+
+   ? "bDebug - LogFile2"
    ::bDebug    = {| aParam | LogFile2( "debug_socket.txt", aParam ) }
+   ? "bOnRead - OnReadProcess"
    ::bOnRead   = {| oSrv, oClient | ::OnReadProcess( oClient ) }
+   ? "bOnAccept - NewClient"
    ::bOnAccept = {| oSrv, oClient | ::NewClient( oClient )  }
+   ? "bOnKillClient - onClose"
    ::bOnKillClient = {| oClient | ::OnClose( oClient ) }
    if hb_isBlock( ::bOnInit )
       Eval( ::bOnInit, Self )
@@ -337,18 +347,23 @@ METHOD HandleEvent( hEvents, oClient ) CLASS WebSocketServer
       SWITCH nEvent
          CASE H5_STARTED 
             /*STARTED*/
+             ::Debug( 'WSS HandleEvent STARTED', nEvent)
             IF hb_isBlock( ::bOnStarted )
                Eval( ::bOnStarted, oClient )
             ENDIF
             EXIT
          CASE 0x2 
             //CLICK ON MENU ITEM      
+            ::Debug( 'WSS HandleEvent Click', nEvent)
             H5_GetMainMenu()[ lParam ]:HandleEvent( nEvent, wParam, lParam )
             EXIT
          CASE 0x3 
             //MOUSE MOVE
+            ::Debug( 'WSS HandleEvent MouseMove', nEvent)
             ::hObjects[ lParam ]:OnMouseMove( H5_HighWord( wParam ), H5_LowWord( wParam ) )         
-            EXIT         
+            EXIT     
+         OTHERWISE
+             ::Debug( 'HandleEvent (OTHERWISE) ', nEvent)
       ENDSWITCH
       
    ELSE 
@@ -668,7 +683,6 @@ STATIC FUNCTION PingPongControl( nTimeOut )
    local Self := QSelf()
 
    DO WHILE ::nPingPongControl > ( nSec := seconds() ) .AND. ::hSocket != NIL
-
       hb_idlesleep( 1 )
    enddo
    

@@ -4,25 +4,19 @@
 #include "h5.ch"
 
 
-PROCEDURE Main( cPuerto, cMode )
+PROCEDURE Main( cPort, cMode )
    LOCAL nError
    LOCAL cMsg
    local oWebSocket
    
-   cPuerto := "8090" 
+   if cPort == NIL
+       cPort := "8090" 
+   endif
    cMode :=  "NONE" 
   
-    
-   oWebSocket = WebSocketServer():New( cPuerto, cMode, , {|| WebApp( ) } )
-   
-//   DEFINE MAINAPP oWebSocket PORT cPuerto MODE cMode
-//? cPuerto, ValType( oWebSocket ), oWebSocket, cMode
-//   oWebSocket:bOnStarted    = {| oClient | Comienza( ) }
-//   oWebSocket:bOnNewClient  = {| oClient | QOut( "Client Accepted!!!" ) }
-//   oWebSocket:bOnCloseClient = {| oClient | QOut( "Client Closed!!!" ) }
-   
-//   ACTIVATE MAINAPP oWebSocket
+   oWebSocket := WebSocketServer():New( cPuerto, cMode, , {|| WebApp( ) } )
 
+   
 RETURN
 
 STATIC FUNCTION WebApp( )
@@ -38,6 +32,8 @@ STATIC FUNCTION WebApp( )
          MENUITEM "Harbour Version" ACTION ( MsgAlert( hb_version() ) )
          MENUITEM "Say ErnadH" ACTION ( SetTitle(oTitle, "ErnadHHHHH") )
          MENUITEM "Say Bakir" ACTION ( SetTitle(oTitle, "Bakir") )
+         MENUITEM "Term write" ACTION ( TermWrite("test term write\r\n") )
+         MENUITEM "Term resize" ACTION ( TermResize( 100, 30 ) )
          MENUITEM "Ide submeni ..."
          MENU 
             MENUITEM "Test 1.2.1"
@@ -73,7 +69,6 @@ STATIC FUNCTION WebApp( )
    oCol = C_Say():New( 70, 50, ".", oWnd )   
 
   oWnd:bOnMouseMove = {| r, c | MouseMove( r, c, oRow, oCol ) }
-   
   oWnd:Activate()
    
 
@@ -87,4 +82,12 @@ RETURN NIL
  
 FUNCTION SetTitle(oTitle, cTitle)
    oTitle:SetText( cTitle )
+RETURN NIL
+
+
+/*
+FUNCTION ReadData( cDecodeData, oClient )
+
+? "ReadData:", cDecodeData
+*/
 RETURN NIL

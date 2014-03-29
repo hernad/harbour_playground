@@ -96,7 +96,7 @@ RETURN Self
 
 METHOD End() CLASS HbSocket2
 
-   LOCAL oClient
+   LOCAL oClient, lRet
    LOCAL hClone := hb_HClone( ::hClients )
    
    for each oClient in hClone
@@ -105,7 +105,8 @@ METHOD End() CLASS HbSocket2
    next
    
    if ::pSocket != NIL
-      HB_SocketClose( ::pSocket )
+      lRet := HB_SocketClose( ::pSocket )
+      ::Debug( "SOCKET CLOSE", ::pSocket, lRet )
       ::pSocket = NIL
    endif
    
@@ -163,7 +164,7 @@ METHOD Listen() CLASS HbSocket2
    ::pSocket     = HB_SocketOpen( )
    ::hMutexUser  = HB_MutexCreate()   
    ::hMutexServer = HB_MutexCreate()
-   hb_idlesleep( 0.1 )
+   hb_idlesleep( 0.3 )
 
    IF ! HB_SocketBind( ::pSocket, { HB_SOCKET_AF_INET, ::cBindAddress, ::nPort } )
       
@@ -253,11 +254,8 @@ METHOD OnRead( oClient ) CLASS HbSocket2
    ErrorBlock( {| o | UErrorHandler( o, Self ) } )
    
    oClient:pThread = hb_ThreadSelf()
-//   hb_mutexSubscribe( Self:hMutexServer, , @hSocket )      
-//   if hSocket != NIL         
-//      oClient:hSocket = hSocket
-      oClient:TimerConnection()
-      ::Debug( "CLIENT LISTEN START", oClient:hSocket )
+   oClient:TimerConnection()
+   ::Debug( "CLIENT LISTEN START", oClient:hSocket )
       do while ! lMyExit .and. oClient:hSocket != NIL
       
          cBuffer = Space( BUFFER_SIZE )   
@@ -266,14 +264,13 @@ METHOD OnRead( oClient ) CLASS HbSocket2
                if ( nLength := HB_SocketRecv( oClient:hSocket, @cBuffer, BUFFER_SIZE, 0, 1000 ) ) > 0
                   hb_idlesleep( 0.1 )
                   oClient:cBuffer = RTrim( cBuffer )
-//                  oClient:cBuffer = cBuffer
                   oClient:nBufferLength = Len( Trim( oClient:cBuffer ) )
                endif         
             else 
                lMyExit = .T.
             endif 
          RECOVER USING oError
-//            ::Debug( oError:Description )
+            ::Debug( "CLIENT ERROR", oError:Description )
             lMyExit := .t.
          ENDSEQUENCE
       
@@ -286,25 +283,23 @@ METHOD OnRead( oClient ) CLASS HbSocket2
          endif
       
          if nLength == 0
-            lMyExit = .T.         
+            lMyExit = .T.
+         
          elseif nLength > 1      
+
             oClient:RestartTimerConnection()   
             if ::bOnRead != NIL
                Eval( ::bOnRead, Self, oClient )
             endif
+
          endif
       
       enddo  
       
       ::Debug( "CLIENT LISTEN FINISHED", oClient:hSocket )
-//   else 
-//      LogFile( ::cErrorLog, { "ERROR EN MUTEXSERVER" }  )
-//   endif
 
    oClient:End()
    hb_threadJoin( oClient:pThread )
-
-//   ::KillClient( oClient )
 
 
 RETURN nil
@@ -316,7 +311,7 @@ METHOD SendData( oClient, cSend ) CLASS HbSocket2
    local nLen 
 
    ::Debug( "SENDING...", oClient:hSocket, cSend )
-   
+  
    DO WHILE Len( cSend ) > 0 .and. oClient:hSocket != NIL
 
       IF oClient:hSocket != NIL
@@ -446,10 +441,10 @@ FUNCTION LogFile2( cFileName, aInfo )
   
    cFileName = hb_dirBase() + cFileName
    
-   for n = 1 to Len( aInfo )
+   for n := 1 to Len( aInfo )
       cLine += uValToChar( aInfo[ n ] ) + Chr( 9 )
    next
-   cLine += CRLF
+   cLine += hb_eol()
 
    if ! File( cFileName )
       FClose( FCreate( cFileName ) )
@@ -474,19 +469,10 @@ static function uValToChar( uVal )
            return uVal
 
       case cType == "D"
-           #ifdef __XHARBOUR__
-              if HasTimePart( uVal )
-                 return If( Year( uVal ) == 0, TToC( uVal, 2 ), TToC( uVal ) )
-              endif
-           #endif
            return DToC( uVal )
 
-      #ifdef __HARBOUR__
-         #ifndef __XHARBOUR__
-            case cType == "T"
+      case cType == "T"
                return If( Year( uVal ) == 0, HB_TToC( uVal, '', Set( _SET_TIMEFORMAT ) ), HB_TToC( uVal ) )
-         #endif
-      #endif
 
       case cType == "L"
            return If( uVal, ".T.", ".F." )

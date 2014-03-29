@@ -18,3 +18,4 @@ FUNCTION MsgAlert( cMsg )
    oClient:SendData( cJSon )
 
 RETURN NIL 
+

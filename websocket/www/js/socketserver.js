@@ -1,6 +1,7 @@
 var oServer;
 var lWorking = false;
 var term;
+var socket;
 
 function H5_SocketServer(serverUrl)
 {
@@ -24,7 +25,8 @@ function H5_SocketServer(serverUrl)
          * and whether it is prefixed. */
         if ("WebSocket" in window) /* Chromium uses no prefix */
         {
-            this.webSocket = new WebSocket(this.serverUrl);
+            socket = new WebSocket(this.serverUrl);
+            this.webSocket = socket;
         }
         else if ("MozWebSocket" in window) /* Mozilla uses the Moz prefix */
         {
@@ -51,25 +53,19 @@ function H5_SocketServer(serverUrl)
         });
 
         term.on('data', function(data) {
-            this.webSocket.emit('data', data);
+            console.log( "term.on data: " + data);
+            socket.send( data );
         });
 
         term.on('title', function(title) {
+             console.log( "term.on title");
              document.title = title;
         });
-
+        
         term.open(document.body);
 
-        term.write('\x1b[31mWelcome to term.js!\x1b[m\r\n');
-
-        this.webSocket.socket.on('data', function(data) {
-             term.write(data);
-        });
-
-        this.webSocket.on('disconnect', function() {
-              term.destroy();
-        });
-
+        term.write('\x1b[31mDobro došli u term.js!\x1b[m\r\n');
+        //term.write('\033]2Novi title;');
 
     };
     
@@ -89,6 +85,7 @@ function H5_SocketServer(serverUrl)
     this.onClose = function(e)
     {
         console.log("on close");
+        term.destroy();
         /* If we were connected, the server went down or the connection timed out. */
         if (this.connected)
         {
@@ -111,8 +108,11 @@ function H5_SocketServer(serverUrl)
        var JSON;
        
        JSON = eval ("(" + msg.data + ")");
-       BuildControls( JSON );
+       ServerMessageHandler( JSON );
 
+       //console.log("webSocket.on data " + data);
+       //      term.write(data);
+ 
     };
     
     /* This event will be raised when an error has accured on the WebSocket */
@@ -138,8 +138,7 @@ function H5_SocketServer(serverUrl)
        this.postMessage( json )
    }    
     
-    /* Use this method if you want to send a message to the chatroom */
-    this.postMessage = function(message )
+    this.postMessage = function( message )
     {
     	  if( ! lWorking )
     	  {
@@ -150,9 +149,6 @@ function H5_SocketServer(serverUrl)
     };
 
     
-    /* Adds a new message to the chatWindow. There are currently two types;
-     * notices and message. A message is a normal chatmessage, a notice is
-     * a event that has accured. */
     this.errorMessage = function(message)
     {
         /* Create a new p element */
@@ -173,7 +169,7 @@ function H5_SocketServer(serverUrl)
     };
 };
 
-function BuildControls( json )
+function ServerMessageHandler( json )
 {
    var acc = json.ACTION;
    switch( acc ) {
@@ -185,8 +181,9 @@ function BuildControls( json )
          term.write('\x1b[31m' + json.MSG + '\x1b[m\r\n');
          break;
       case "BUILDCONTROLS":
-         $.each( json.PARAMETERS, function(i, n){
-            BuildControls( n );
+         $.each( json.PARAMETERS, function(i, n) {
+            console.log("BUILDCONTROLS " +  i + ":" + JSON.stringify( n ) );
+            ServerMessageHandler( n );
          });      
          break;
       case "CREATESAY":
@@ -196,12 +193,23 @@ function BuildControls( json )
          SetTextSay( json );
          break;
       case "CONFIGWND":
-         ConfigWnd( json );    
+         ConfigWnd( json );
+         break;
+      case "TW":
+         term.write( json.MSG );
+         break;
+      case "TR":
+         console.log( "term resize" );
+         term.resize( json.COLS, json.ROWS );
+         break;
+
+
+ 
     }
 }
 
 function onMenuItemClick( p_sType, p_aArgs ) {
-   var oEvent = p_aArgs[0],    // DOM Event
+   var oEvent = p_aArgs[0], // DOM Event
    oMenuItem  = p_aArgs[1]; // YAHOO.widget.MenuItem instance
    var oMenuParent;
    
@@ -237,11 +245,14 @@ function CreateSay( json )
 
 function SetTextSay( json )
 {
-  console.log("SetTextSay");
   var par = json.PARAMETER;
+  console.log("SetTextSay:" + par.ID);
   var say = document.getElementById(par.ID);
-  
-  say.innerHTML = par.cText;
+ 
+  if (say == null) 
+     console.log( par.ID + " ne postoji !?");
+  else
+     say.innerHTML = par.cText;
   
 }
 
@@ -256,11 +267,9 @@ function createMenu( json ) {
     var oMenuBar = new YAHOO.widget.MenuBar( json.ID );
 
     // Add items to the MenuBar instance
- 
     oMenuBar.addItems(aItemData);
  
     // Render the MenuBar instance
- 
     oMenuBar.subscribe( "click", onMenuItemClick );
 
     oMenuBar.render(document.getElementById( json.PARENT ));
@@ -287,7 +296,7 @@ function _OnMouseMove( ev )
    if( ev.currentTarget.id == ev.target.id )
    {
     oServer._HandleEvent( 0x3, MAKEDWORD( ev.clientY, ev.clientX ), ev.currentTarget.id, "" );
-	 }
+   }
 }
 
 function ConfigWnd( json )
