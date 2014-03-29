@@ -28,12 +28,13 @@ proc main()
    ? "==================="
    ?
    begin sequence
-      for i := 1 to 10
+      for i := 1 to 20
          ?? "M"
-         hb_idleSleep(0.050)
+         hb_idleSleep(0.40)
       next
       ? "==================="
       ? "Main QUIT"
+      Alert ("Main Quit" )
       quit
    always
       ? "Main ALWAYS section"
@@ -48,11 +49,18 @@ proc thFunc( ... )
    ? "Parameters:"
    aeval( hb_aParams(), {|x|qqout("",x)})
    ?
+   //Alert( "th Func start" )
+   set console off
    begin sequence
-      for i:=1 to 10
-         ?? "t"
-         hb_idleSleep(0.030)
-         if i == 5
+      for i:=1 to 20
+         hb_idleSleep(0.10)
+         if i > 10
+              set console on
+              ?? "T"
+         else
+              ?? "t"
+         endif
+         if i == 20
             ? "Thread QUIT"
             quit
          endif
