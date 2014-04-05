@@ -22,9 +22,9 @@ aadd( s_var1, "X" )
 s_var2[ "X" ] := "zxc"
 s_var3 += 100000
 s_var4 := upper( s_var4 )
-testvar("modified main thread values")
+testvar("modified main thread values -1")
 hb_threadJoin( hb_threadStart( @thFunc() ) )
-testvar("modified main thread values")
+testvar("modified main thread values -2")
 return
 
 proc testvar( cMsg )
