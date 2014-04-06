@@ -84,37 +84,37 @@ proc main
    ? "pritisni nesto da kreiras thread-ove"
    inkey( 0 )
 
-   hb_threadStart( @thread_my_create(), 1,  @hdbfs[ "test" ], @xRet )
+   hb_threadStart( @thread_my_create(), 4,  @hdbfs[ "test" ], @xRet )
+   hb_threadStart( @thread_my_create(), 1, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 4, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 3, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 4, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 4, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 4, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 3, @hdbfs[ "test" ], @xRet )
+   hb_threadStart( @thread_my_create(), 4, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 3, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 4, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 3, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 4, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 4, @hdbfs[ "test_2" ], @xRet )
    hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
    hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
    hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 3, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 3, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 3, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 4, @hdbfs[ "test_2" ], @xRet )
    hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
    hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
-   hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
+   hb_threadStart( @thread_my_create(), 4, @hdbfs[ "test_2" ], @xRet )
    hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
    hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
    hb_threadStart( @thread_my_create(), 2, @hdbfs[ "test_2" ], @xRet )
@@ -139,8 +139,8 @@ proc main
    replace id with "3333", naz with "test333"
    show_recs( "test2" )
 
-   ? "inkey jos 10 sekundi"
-   inkey( 10 )
+   ? "inkey jos 30 sekundi"
+   inkey( 30 )
 
    RETURN
 
@@ -200,12 +200,20 @@ function thread_my_create( nOpcija, hDbfRec, xRet )
    if !s_sql_in_use
        s_sql_in_use := .T.
 
-      if nOpcija == 1
-       insert_sql_recs( conn )
-
-      ELSE
-        show_sql_recs( conn )
-      ENDIF
+      SWITCH (nOpcija)
+        CASE 1
+          insert_sql_recs( conn )
+          EXIT
+        CASE  2
+          show_sql_recs( conn )
+          EXIT
+        CASE  3
+          insert_sql_recs_trans( conn )
+          EXIT
+        CASE  4
+          insert_sql_recs_bad_trans( conn )
+          EXIT
+      END SWITCH
       
       s_sql_in_use := .F.
    ENDIF
@@ -241,9 +249,9 @@ FUNCTION sql_query( conn, cQuery )
 
       cMsg := oQuery:cError
 
-      IF !Empty( cMsg )
-            Alert( cQuery + " : " + cMsg )
-      ENDIF
+      //IF !Empty( cMsg )
+      //      Alert( cQuery + " : " + cMsg )
+      //ENDIF
 
       RETURN .F.
 
@@ -258,13 +266,76 @@ function insert_sql_recs( conn )
       FOR i := 1 TO 10
         cId := PADR( ALLTRIM( hb_valToStr( RANDOM() ) ), 6)
         oDataSet := sql_query( conn, "insert into fmk.partn(id, naz) VALUES('" + cId + "','" + cId + "')" )
-        ? hb_valToStr( oDataSet:lError )
+        IF VALTYPE( oDataSet ) == "O"
+           ? hb_valToStr( oDataSet:lError )
+        ENDIF
       NEXT
 
       oDataSet := sql_query( conn, "select count(*) from fmk.partn" )
       ? oDataSet:FieldGet( 1 )
       inkey( 2 )
  
+  RETURN
+
+function insert_sql_recs_trans( conn )
+
+ local i, oDataSet
+ 
+      ? "BEGIN OK transakcije"
+      sql_query( conn, "BEGIN" )
+      BEGIN SEQUENCE
+      FOR i := 1 TO 10
+        cId := PADR( ALLTRIM( hb_valToStr( RANDOM() ) ), 6)
+        oDataSet := sql_query( conn, "insert into fmk.partn(id, naz) VALUES('" + cId + "','" + cId + "')" )
+        ? hb_valToStr( oDataSet:lError )
+        hb_idleSleep( 0.5 )
+      NEXT
+
+      oDataSet := sql_query( conn, "select count(*) from fmk.partn" )
+      ? oDataSet:FieldGet( 1 )
+      sql_query( conn, "COMMIT" )
+      ? "COMMIT OK transakcije"
+      inkey( 1 )
+ 
+      RECOVER
+        sql_query( conn, "ROLLBACK" )
+        ? "ROLLBACK OK transakcije" 
+        inkey( 1 )
+      END SEQUENCE
+  RETURN
+
+function insert_sql_recs_bad_trans( conn )
+
+ local i, oDataSet
+ 
+      ? "BEGIN BAD transakcije"
+      sql_query( conn, "BEGIN" )
+      BEGIN SEQUENCE
+      FOR i := 1 TO 10
+        cId := PADR( ALLTRIM( hb_valToStr( RANDOM() ) ), 6)
+        oDataSet := sql_query( conn, "insert into fmk.partn(id, naz) VALUES('" + cId + "','" + cId + "')" )
+        IF VALTYPE( oDataSet ) == "O"
+          ? hb_valToStr( oDataSet:lError )
+        ENDIF
+        hb_idleSleep( 0.5 )
+      NEXT
+
+      oDataSet := sql_query( conn, "insertXXXXXXXXX into fmk.partn(id, naz) VALUES('" + cId + "','" + cId + "')" )
+      
+      IF VALTYPE( oDataSet )  == "O"  
+          sql_query( conn, "COMMIT" )
+          ? "COMMIT BAD transakcije"
+      ELSE
+          sql_query( conn, "ROLLBACK" )
+          ? "ROLLBACK BAD transakcije"
+          inkey( 1 )
+      ENDIF
+ 
+      RECOVER
+        sql_query( conn, "ROLLBACK" )
+        ? "ROLLBACK BAD transakcije" 
+        inkey( 1 )
+      END SEQUENCE
   RETURN
 
 
@@ -277,7 +348,7 @@ function show_sql_recs( conn )
     DO while !oDataSet:eof()
          ? oDataSet:FieldGet( 1 ), oDataSet:FieldGet( 2 ) 
          oDataSet:skip()
-         inkey( 0.5 )
+         inkey( 0.2 )
     ENDDO
 
 
