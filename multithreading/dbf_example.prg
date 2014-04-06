@@ -5,7 +5,7 @@ static s_hMutex
 
 static s_main_thread
 static s_main_connection
-static s_connection
+THREAD static s_connection
 
 REQUEST DBFCDX
 REQUEST HB_GT_XWC
@@ -64,14 +64,6 @@ proc main
 
 
   params := s_hParams
-
-  s_connection :=  TPQServer():New( params[ "host" ], ;
-      params[ "database" ], ;
-      params[ "user" ], ;
-      params[ "password" ], ;
-      params[ "port" ], ;
-      params[ "schema" ] )
-
 
   s_main_connection :=  TPQServer():New( params[ "host" ], ;
       params[ "database" ], ;
@@ -190,6 +182,26 @@ function thread_screen()
   hb_gtSelect( s_w )
 
 
+function create_thread_connection()
+
+  local params := s_hParams
+
+  s_connection :=  TPQServer():New( params[ "host" ], ;
+      params[ "database" ], ;
+      params[ "user" ], ;
+      params[ "password" ], ;
+      params[ "port" ], ;
+      params[ "schema" ] )
+
+
+function my_connection( params )
+
+   if params == NIL
+     params = s_hParams
+   endif
+
+   return s_connection
+   
 
 function thread_my_create( nOpcija, hDbfRec, xRet )
 
@@ -197,6 +209,7 @@ function thread_my_create( nOpcija, hDbfRec, xRet )
    local w
 
    thread_screen()
+   create_thread_connection()
    conn := my_connection()
  
       SWITCH (nOpcija)
@@ -223,15 +236,6 @@ function thread_my_create( nOpcija, hDbfRec, xRet )
    
    RETURN
 
-
-function my_connection( params )
-
-   if params == NIL
-     params = s_hParams
-   endif
-
-   return s_connection
-   
 
 FUNCTION sql_query( conn, cQuery )
 
