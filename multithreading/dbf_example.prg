@@ -299,12 +299,16 @@ function insert_sql_recs_trans( conn )
       FOR i := 1 TO 10
         cId := PADR( ALLTRIM( hb_valToStr( RANDOM() ) ), 6)
         oDataSet := sql_query( conn, "insert into fmk.partn(id, naz) VALUES('" + cId + "','" + cId + "')" )
-        ? hb_valToStr( oDataSet:lError )
+        if VALTYPE( oDataSet) == "O"
+           ? hb_valToStr( oDataSet:lError )
+        ENDIF
         hb_idleSleep( 4 )
       NEXT
 
       oDataSet := sql_query( conn, "select count(*) from fmk.partn" )
-      ? oDataSet:FieldGet( 1 )
+      IF VALTYPE( oDataSet ) == "O"
+         ? oDataSet:FieldGet( 1 )
+      ENDIF
       sql_query( conn, "COMMIT" )
       ? "COMMIT OK transakcije"
       inkey( 1 )
