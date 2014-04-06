@@ -241,6 +241,7 @@ FUNCTION sql_query( conn, cQuery )
 
    LOCAL oQuery, cMsg
 
+/*
    if !is_main_thread()
      ? "BEFORE s_mtx_sql LOCK ....", hb_valToStr( hb_threadSelf() )
      hb_mutexLock( s_mtx_sql )
@@ -250,16 +251,17 @@ FUNCTION sql_query( conn, cQuery )
      enddo
      s_sql_in_use := .T.
    endif
-
+*/
    ? "query", cQuery
    oQuery := conn:Query( cQuery + ";" )
 
+/*
    if !is_main_thread()
      s_sql_in_use := .F.
      hb_mutexUnLock( s_mtx_sql )
      ? "AFTER s_mtx_sql UNNNLOCK ....", hb_valToStr( hb_threadSelf() )
    endif
-
+*/
   
    IF VALTYPE( oQuery ) != "O" .OR. ( VALTYPE( oQuery) == "O" .AND. oQuery:lError )
 
