@@ -3,6 +3,7 @@ static aDbfs
 static s_hParams
 static s_hMutex
 
+static s_main_thread
 static s_main_connection
 static s_connection
 
@@ -26,10 +27,15 @@ function init_s_params()
   s_hParams[ "schema" ] := "fmk"
 
 
+function is_main_thread()
+ 
+  return s_main_thread == hb_threadSelf()
+
 proc main
 
    LOCAL xRet, params
 
+   s_main_thread := hb_threadSelf()
    init_s_params()
 
    FERASE( "test.dbf" )
@@ -192,14 +198,7 @@ function thread_my_create( nOpcija, hDbfRec, xRet )
 
    thread_screen()
    conn := my_connection()
-  
-   ? "BEFORE s_mtx_sql LOCK ....", hb_valToStr( hb_threadSelf() )
-
-   hb_mutexLock( s_mtx_sql )
  
-   if !s_sql_in_use
-       s_sql_in_use := .T.
-
       SWITCH (nOpcija)
         CASE 1
           insert_sql_recs( conn )
@@ -214,12 +213,8 @@ function thread_my_create( nOpcija, hDbfRec, xRet )
           insert_sql_recs_bad_trans( conn )
           EXIT
       END SWITCH
-      
-      s_sql_in_use := .F.
-   ENDIF
-   hb_mutexUnLock( s_mtx_sql )
-   ? "AFTER s_mtx_sql UNNNLOCK ....", hb_valToStr( hb_threadSelf() )
 
+ 
  
    my_create( hDbfRec )
    ? "END my create in thread", nOpcija, hb_valToStr( hb_threadSelf() )
@@ -242,7 +237,24 @@ FUNCTION sql_query( conn, cQuery )
 
    LOCAL oQuery, cMsg
 
+   if !is_main_thread()
+     ? "BEFORE s_mtx_sql LOCK ....", hb_valToStr( hb_threadSelf() )
+     hb_mutexLock( s_mtx_sql )
+     while s_sql_in_use
+         hb_idleSleep( 0.1 )
+         ? "s_sql_in_use other thread, my_thread =", hb_valToStr( hb_threadSelf() )
+     enddo
+     s_sql_in_use := .T.
+   endif
+
+   ? "query", cQuery
    oQuery := conn:Query( cQuery + ";" )
+
+   if !is_main_thread()
+     s_sql_in_use := .F.
+     hb_mutexUnLock( s_mtx_sql )
+     ? "AFTER s_mtx_sql UNNNLOCK ....", hb_valToStr( hb_threadSelf() )
+   endif
 
   
    IF VALTYPE( oQuery ) != "O" .OR. ( VALTYPE( oQuery) == "O" .AND. oQuery:lError )
@@ -288,7 +300,7 @@ function insert_sql_recs_trans( conn )
         cId := PADR( ALLTRIM( hb_valToStr( RANDOM() ) ), 6)
         oDataSet := sql_query( conn, "insert into fmk.partn(id, naz) VALUES('" + cId + "','" + cId + "')" )
         ? hb_valToStr( oDataSet:lError )
-        hb_idleSleep( 0.5 )
+        hb_idleSleep( 4 )
       NEXT
 
       oDataSet := sql_query( conn, "select count(*) from fmk.partn" )
@@ -310,14 +322,14 @@ function insert_sql_recs_bad_trans( conn )
  
       ? "BEGIN BAD transakcije"
       sql_query( conn, "BEGIN" )
-      BEGIN SEQUENCE
+      //BEGIN SEQUENCE
       FOR i := 1 TO 10
         cId := PADR( ALLTRIM( hb_valToStr( RANDOM() ) ), 6)
         oDataSet := sql_query( conn, "insert into fmk.partn(id, naz) VALUES('" + cId + "','" + cId + "')" )
         IF VALTYPE( oDataSet ) == "O"
           ? hb_valToStr( oDataSet:lError )
         ENDIF
-        hb_idleSleep( 0.5 )
+        hb_idleSleep( 4 )
       NEXT
 
       oDataSet := sql_query( conn, "insertXXXXXXXXX into fmk.partn(id, naz) VALUES('" + cId + "','" + cId + "')" )
@@ -328,14 +340,14 @@ function insert_sql_recs_bad_trans( conn )
       ELSE
           sql_query( conn, "ROLLBACK" )
           ? "ROLLBACK BAD transakcije"
-          inkey( 1 )
+          inkey( 2 )
       ENDIF
  
-      RECOVER
-        sql_query( conn, "ROLLBACK" )
-        ? "ROLLBACK BAD transakcije" 
-        inkey( 1 )
-      END SEQUENCE
+     // RECOVER
+     //   sql_query( conn, "ROLLBACK" )
+     //   ? "ROLLBACK BAD transakcije" 
+     //   inkey( 4 )
+      //END SEQUENCE
   RETURN
 
 
