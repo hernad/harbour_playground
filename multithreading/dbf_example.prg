@@ -287,6 +287,7 @@ function insert_sql_recs( conn )
         IF VALTYPE( oDataSet ) == "O"
            ? hb_valToStr( oDataSet:lError )
         ENDIF
+        hb_idleSleep( 1 )
       NEXT
 
       oDataSet := sql_query( conn, "select count(*) from fmk.partn" )
@@ -308,7 +309,7 @@ function insert_sql_recs_trans( conn )
         if VALTYPE( oDataSet) == "O"
            ? hb_valToStr( oDataSet:lError )
         ENDIF
-        hb_idleSleep( 4 )
+        hb_idleSleep( 5 )
       NEXT
 
       oDataSet := sql_query( conn, "select count(*) from fmk.partn" )
@@ -339,7 +340,7 @@ function insert_sql_recs_bad_trans( conn )
         IF VALTYPE( oDataSet ) == "O"
           ? hb_valToStr( oDataSet:lError )
         ENDIF
-        hb_idleSleep( 4 )
+        hb_idleSleep( 5 )
       NEXT
 
       oDataSet := sql_query( conn, "insertXXXXXXXXX into fmk.partn(id, naz) VALUES('" + cId + "','" + cId + "')" )
