@@ -6,11 +6,7 @@
 
 // http://www.harbourdoc.com.br/show.asp?seek=description&key=PDFClass
 
-#ifdef __PLATFORM__LINUX
-   static s_font := "Courier"
-#else
-   static s_font := "Courier"
-#endif
+static s_font := "Courier"
 static s_codePage := "CP1250"
 
 CREATE CLASS PDFClass
@@ -22,7 +18,7 @@ CREATE CLASS PDFClass
    VAR    nCol              INIT 0
    VAR    nAngle            INIT 0
    VAR    cFontName         INIT s_font
-   VAR    nFontSize         INIT 9
+   VAR    nFontSize         INIT 7
    VAR    nLineHeight       INIT 1.3
    VAR    nMargin           INIT 30
    VAR    nType             INIT 1
@@ -74,7 +70,6 @@ METHOD BEGIN() CLASS PDFClass
 
 METHOD END() CLASS PDFClass
 
-   altd()
    IF ::nType == PDF_TXT
       SET DEVICE TO SCREEN
       SET PRINTER TO
@@ -83,7 +78,7 @@ METHOD END() CLASS PDFClass
    ELSE
       IF ::nPdfPage == 0
          ::AddPage()
-         ::DrawText( 10, 10, "NENHUM CONTEUDO (NO CONTENT)",, ::nFontSize * 2 )
+         ::DrawText( 10, 10, "šŠ ćĆ žŽ đĐ",, ::nFontSize * 2 )
       ENDIF
       IF File( ::cFileName )
          FErase( ::cFileName )
@@ -127,7 +122,6 @@ METHOD SetType( nType ) CLASS PDFClass
 
 METHOD AddPage() CLASS PDFClass
 
-   altd()
    IF ::nType != PDF_TXT
       ::oPage := HPDF_AddPage( ::oPdf )
       HPDF_Page_SetSize( ::oPage, HPDF_PAGE_SIZE_A4, IIF( ::nType == PDF_PORTRAIT, HPDF_PAGE_PORTRAIT, HPDF_PAGE_LANDSCAPE ) )
@@ -155,7 +149,7 @@ METHOD DrawText( nRow, nCol, xValue, cPicture, nFontSize, cFontName, nAngle, anR
    cPicture  := iif( cPicture == NIL, "", cPicture )
    nAngle    := iif( nAngle == NIL, ::nAngle, nAngle )
 
-   IF ValType( xValue ) == "C"
+   IF ValType( xValue ) == "C" .AND. ::nType != PDF_TXT
       xValue := hb_Utf8ToStr( xValue )
    ENDIF
    cTexto    := Transform( xValue, cPicture )
