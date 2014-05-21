@@ -49,7 +49,7 @@ FUNCTION TextReport( oPDF )
      FOR i := 1 TO 66
         oPDF:DrawText( i, i, ALLTRIM( STR( i ) ) + " žŽ " + ALLTRIM( STR( page ) ), , 10)
      NEXT
-     oPDF:DrawText( 67, 0, Chr(13) )  
+     oPDF:DrawText( 67, 0, "" )  
      oPDF:AddPage()
    NEXT
    RETURN NIL
