@@ -2,9 +2,16 @@
 #include "hbclass.ch"
 #include "inkey.ch"
 
-#define PDF_PORTRAIT  1
-#define PDF_LANDSCAPE 2
-#define PDF_TXT       3
+#include "pdf_cls.ch"
+
+// http://www.harbourdoc.com.br/show.asp?seek=description&key=PDFClass
+
+#ifdef __PLATFORM__LINUX
+   static s_font := "Courier"
+#else
+   static s_font := "Courier"
+#endif
+static s_codePage := "CP1250"
 
 CREATE CLASS PDFClass
 
@@ -14,7 +21,7 @@ CREATE CLASS PDFClass
    VAR    nRow              INIT 999
    VAR    nCol              INIT 0
    VAR    nAngle            INIT 0
-   VAR    cFontName         INIT "Courier"
+   VAR    cFontName         INIT s_font
    VAR    nFontSize         INIT 9
    VAR    nLineHeight       INIT 1.3
    VAR    nMargin           INIT 30
@@ -22,7 +29,7 @@ CREATE CLASS PDFClass
    VAR    nPdfPage          INIT 0
    VAR    nPageNumber       INIT 0
    VAR    cHeader           INIT {}
-   VAR    cCodePage         INIT "CP1252"
+   VAR    cCodePage         INIT s_codePage
    METHOD AddPage()
    METHOD RowToPDFRow( nRow )
    METHOD ColToPDFCol( nCol )
@@ -30,7 +37,7 @@ CREATE CLASS PDFClass
    METHOD MaxCol()
    METHOD DrawText( nRow, nCol, xValue, cPicture, nFontSize, cFontName, nAngle, anRGB )
    METHOD DrawLine( nRowi, nColi, nRowf, nColf, nPenSize )
-   METHOD DrawRetangle( nTop, nLeft, nWidth, nHeight, nPenSize, nFillType, anRGB )
+   METHOD DrawRectangle( nTop, nLeft, nWidth, nHeight, nPenSize, nFillType, anRGB )
    METHOD DrawImage( cJPEGFile, nRow, nCol, nWidth, nHeight )
    METHOD Cancel()
    METHOD PrnToPdf( cInputFile )
@@ -40,6 +47,7 @@ CREATE CLASS PDFClass
    METHOD SetInfo( cAuthor, cCreator, cTitle, cSubject )
    METHOD BEGIN()
    METHOD END()
+   METHOD View()
 
 ENDCLASS
 
@@ -66,10 +74,12 @@ METHOD BEGIN() CLASS PDFClass
 
 METHOD END() CLASS PDFClass
 
+   altd()
    IF ::nType == PDF_TXT
       SET DEVICE TO SCREEN
       SET PRINTER TO
-      RUN ( "cmd /c start notepad.exe " + ::cFileName )
+      ::View()
+
    ELSE
       IF ::nPdfPage == 0
          ::AddPage()
@@ -80,7 +90,8 @@ METHOD END() CLASS PDFClass
       ENDIF
       HPDF_SaveToFile( ::oPdf, ::cFileName )
       HPDF_Free( ::oPdf )
-      RUN ( "cmd /c start " + ::cFileName )
+
+      ::View()
    ENDIF
 
    RETURN NIL
@@ -90,10 +101,12 @@ METHOD SetInfo( cAuthor, cCreator, cTitle, cSubject ) CLASS PDFClass
    IF ::nType == PDF_TXT
       RETURN NIL
    ENDIF
-   cAuthor  := iif( cAuthor == NIL, "JPA Tecnologia", cAuthor )
+
+   cAuthor  := iif( cAuthor == NIL, "bring.out", cAuthor )
    cCreator := iif( cCreator == NIL, "Harupdf", cCreator )
    cTitle   := iif( cTitle == NIL, "", cTitle )
    cSubject := iif( cSubject == NIL, cTitle, cSubject )
+
    HPDF_SetInfoAttr( ::oPDF, HPDF_INFO_AUTHOR, cAuthor )
    HPDF_SetInfoAttr( ::oPDF, HPDF_INFO_CREATOR, cCreator )
    HPDF_SetInfoAttr( ::oPDF, HPDF_INFO_TITLE, cTitle )
@@ -114,9 +127,10 @@ METHOD SetType( nType ) CLASS PDFClass
 
 METHOD AddPage() CLASS PDFClass
 
+   altd()
    IF ::nType != PDF_TXT
       ::oPage := HPDF_AddPage( ::oPdf )
-      HPDF_Page_SetSize( ::oPage, HPDF_PAGE_SIZE_A4, iif( ::nType == 2, HPDF_PAGE_PORTRAIT, HPDF_PAGE_LANDSCAPE ) )
+      HPDF_Page_SetSize( ::oPage, HPDF_PAGE_SIZE_A4, IIF( ::nType == PDF_PORTRAIT, HPDF_PAGE_PORTRAIT, HPDF_PAGE_LANDSCAPE ) )
       HPDF_Page_SetFontAndSize( ::oPage, HPDF_GetFont( ::oPdf, ::cFontName, ::cCodePage ), ::nFontSize )
    ENDIF
    ::nRow := 0
@@ -131,6 +145,7 @@ METHOD Cancel() CLASS PDFClass
 
    RETURN NIL
 
+
 METHOD DrawText( nRow, nCol, xValue, cPicture, nFontSize, cFontName, nAngle, anRGB ) CLASS PDFClass
 
    LOCAL nRadian, cTexto
@@ -139,8 +154,13 @@ METHOD DrawText( nRow, nCol, xValue, cPicture, nFontSize, cFontName, nAngle, anR
    cFontName := iif( cFontName == NIL, ::cFontName, cFontName )
    cPicture  := iif( cPicture == NIL, "", cPicture )
    nAngle    := iif( nAngle == NIL, ::nAngle, nAngle )
+
+   IF ValType( xValue ) == "C"
+      xValue := hb_Utf8ToStr( xValue )
+   ENDIF
    cTexto    := Transform( xValue, cPicture )
    ::nCol := nCol + Len( cTexto )
+
    IF ::nType == PDF_TXT
       @ nRow, nCol SAY cTexto
    ELSE
@@ -201,7 +221,7 @@ METHOD DrawImage( cJPEGFile, nRow, nCol, nWidth, nHeight ) CLASS PDFClass
 
    RETURN NIL
 
-METHOD DrawRetangle( nTop, nLeft, nWidth, nHeight, nPenSize, nFillType, anRGB ) CLASS PDFClass
+METHOD DrawRectangle( nTop, nLeft, nWidth, nHeight, nPenSize, nFillType, anRGB ) CLASS PDFClass
 
    IF ::nType == PDF_TXT
       RETURN NIL
@@ -262,6 +282,8 @@ METHOD MaxCol() CLASS PDFClass
 
    RETURN nMaxCol
 
+
+
 METHOD PrnToPdf( cInputFile ) CLASS PDFClass
 
    LOCAL cTxtReport, cTxtPage, cTxtLine, nRow
@@ -286,6 +308,8 @@ METHOD PrnToPdf( cInputFile ) CLASS PDFClass
 
    RETURN NIL
 
+
+
 METHOD PageHeader() CLASS PDFClass
 
    ::nPdfPage    += 1
@@ -301,6 +325,17 @@ METHOD PageHeader() CLASS PDFClass
 
    RETURN NIL
 
+
+METHOD View() CLASS PDFClass
+
+#ifdef __PLATFORM__LINUX 
+      RUN ( "xdg-open " + ::cFileName )
+#else
+      RUN ( "cmd /c start " + ::cFileName )
+#endif
+
+RETURN
+
 METHOD MaxRowTest( nRows ) CLASS PDFClass
 
    nRows := iif( nRows == NIL, 0, nRows )
@@ -313,5 +348,9 @@ METHOD MaxRowTest( nRows ) CLASS PDFClass
 FUNCTION TxtSaida()
    RETURN { "PDF Landscape", "PDF Portrait", "Matrix" }
 
-FUNCTION MyTempFile( cExtensao )
-   RETURN "temp." + cExtensao
+FUNCTION MyTempFile( cExt )
+   RETURN "temp." + cExt
+
+
+
+

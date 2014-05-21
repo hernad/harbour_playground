@@ -5,5 +5,5 @@ hbhpdf.hbc
 invoice.prg
 pdf_cls.prg
 
-
+-b
 -oinvoice
